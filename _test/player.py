@@ -3,16 +3,17 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QFileDialog,
     QVBoxLayout, QHBoxLayout, QStyle, QSlider, QLabel
 )
-from PyQt6.QtMultimedia import QMediaPlayer
+# We need to import QAudioOutput for sound control
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtCore import Qt, QUrl
 
 class VideoPlayer(QMainWindow):
-    """A simple MP4 video player using PyQt6."""
+    """A simple MP4 video player with sound controls using PyQt6."""
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PyQt6 MP4 Player")
+        self.setWindowTitle("PyQt6 MP4 Player with Sound")
         self.setGeometry(100, 100, 800, 600)
 
         # Create the central widget and layout
@@ -20,8 +21,13 @@ class VideoPlayer(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # --- Media Player and Video Widget ---
+        # --- Media Player, Audio Output and Video Widget ---
         self.media_player = QMediaPlayer()
+        
+        # Create QAudioOutput and set it on the media player
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
+        
         self.video_widget = QVideoWidget()
         self.media_player.setVideoOutput(self.video_widget)
         layout.addWidget(self.video_widget)
@@ -40,30 +46,36 @@ class VideoPlayer(QMainWindow):
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # --- Buttons ---
-        # Open Button
         self.open_button = QPushButton()
         self.open_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DialogOpenButton))
         self.open_button.setToolTip("Open Video File")
         
-        # Rewind Button
         self.rewind_button = QPushButton()
         self.rewind_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaSeekBackward))
         self.rewind_button.setToolTip("Rewind 5 seconds")
 
-        # Play/Pause Button
         self.play_button = QPushButton()
         self.play_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPlay))
         self.play_button.setToolTip("Play")
         
-        # Stop Button
         self.stop_button = QPushButton()
         self.stop_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaStop))
         self.stop_button.setToolTip("Stop")
 
-        # Fast Forward Button
         self.ff_button = QPushButton()
         self.ff_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaSeekForward))
         self.ff_button.setToolTip("Fast Forward 5 seconds")
+
+        # --- NEW: Mute Button ---
+        self.mute_button = QPushButton()
+        self.mute_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolume))
+        self.mute_button.setToolTip("Mute")
+
+        # --- NEW: Volume Slider ---
+        self.volume_slider = QSlider(Qt.Orientation.Horizontal)
+        self.volume_slider.setRange(0, 100)
+        self.volume_slider.setValue(75) # Default volume
+        self.volume_slider.setFixedWidth(120)
         
         # Add buttons to the layout
         buttons_layout.addWidget(self.open_button)
@@ -71,11 +83,20 @@ class VideoPlayer(QMainWindow):
         buttons_layout.addWidget(self.play_button)
         buttons_layout.addWidget(self.stop_button)
         buttons_layout.addWidget(self.ff_button)
+        
+        # Add new sound controls to layout
+        buttons_layout.addSpacing(20) # Add a small gap for visual separation
+        buttons_layout.addWidget(self.mute_button)
+        buttons_layout.addWidget(self.volume_slider)
+
         buttons_layout.addStretch() # Pushes the time label to the right
         buttons_layout.addWidget(self.time_label)
         
         controls_layout.addLayout(buttons_layout)
         layout.addLayout(controls_layout)
+
+        # Set initial volume
+        self.audio_output.setVolume(self.volume_slider.value() / 100.0)
 
         # --- Connect Signals to Slots ---
         self.open_button.clicked.connect(self.open_file)
@@ -86,6 +107,10 @@ class VideoPlayer(QMainWindow):
         
         self.position_slider.sliderMoved.connect(self.set_position)
         
+        # Connect new sound control signals
+        self.mute_button.clicked.connect(self.toggle_mute)
+        self.volume_slider.valueChanged.connect(self.set_volume)
+        
         self.media_player.playbackStateChanged.connect(self.update_play_button_icon)
         self.media_player.positionChanged.connect(self.update_slider_and_label)
         self.media_player.durationChanged.connect(self.update_slider_range)
@@ -93,6 +118,8 @@ class VideoPlayer(QMainWindow):
         
         # Set initial state of buttons
         self.set_controls_enabled(False)
+        self.mute_button.setEnabled(True) # Mute can be toggled anytime
+        self.volume_slider.setEnabled(True) # Volume can be set anytime
 
     def set_controls_enabled(self, enabled):
         """Enable or disable media control buttons."""
@@ -104,13 +131,12 @@ class VideoPlayer(QMainWindow):
 
     def open_file(self):
         """Open a video file and set it as the media source."""
-        # QFileDialog.getOpenFileUrl() is preferred for media content
         file_url, _ = QFileDialog.getOpenFileUrl(self, "Open MP4", filter="Video Files (*.mp4 *.avi *.mkv)")
 
         if file_url.isValid():
             self.media_player.setSource(file_url)
             self.set_controls_enabled(True)
-            self.play_video() # Automatically play after opening
+            self.play_video()
 
     def play_video(self):
         """Toggle between playing and pausing the video."""
@@ -133,7 +159,6 @@ class VideoPlayer(QMainWindow):
         """Fast forward the video by 5000 milliseconds (5 seconds)."""
         current_position = self.media_player.position()
         new_position = current_position + 5000
-        # Ensure we don't go past the end
         if new_position < self.media_player.duration():
             self.media_player.setPosition(new_position)
 
@@ -141,6 +166,29 @@ class VideoPlayer(QMainWindow):
         """Set the media player's position based on the slider."""
         self.media_player.setPosition(position)
 
+    # --- NEW Sound Control Slots ---
+    def toggle_mute(self):
+        """Mutes or unmutes the audio output."""
+        if not self.audio_output.isMuted():
+            self.audio_output.setMuted(True)
+            self.mute_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolumeMuted))
+            self.mute_button.setToolTip("Unmute")
+        else:
+            self.audio_output.setMuted(False)
+            self.mute_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MediaVolume))
+            self.mute_button.setToolTip("Mute")
+
+    def set_volume(self, volume):
+        """Sets the volume of the audio output."""
+        # QAudioOutput volume is a float between 0.0 and 1.0
+        volume_float = volume / 100.0
+        self.audio_output.setVolume(volume_float)
+
+        # Unmute if volume is changed while muted
+        if volume > 0 and self.audio_output.isMuted():
+            self.toggle_mute()
+
+    # --- Update/Utility Slots ---
     def update_play_button_icon(self, state):
         """Update the play/pause button icon based on the playback state."""
         if state == QMediaPlayer.PlaybackState.PlayingState:
@@ -152,12 +200,10 @@ class VideoPlayer(QMainWindow):
             
     def update_slider_and_label(self, position):
         """Update the slider's value and the time label."""
-        # Update slider (preventing signals from being emitted)
         self.position_slider.blockSignals(True)
         self.position_slider.setValue(position)
         self.position_slider.blockSignals(False)
 
-        # Update time label
         duration = self.media_player.duration()
         self.time_label.setText(f"{self.format_time(position)} / {self.format_time(duration)}")
 
