@@ -18,7 +18,6 @@ class ImageGrid(QMainWindow):
         self.setWindowTitle("3x3 Image Grid Viewer")
         self.setGeometry(100, 100, 800, 600)
 
-        # --- Data Attributes ---
         self.image_paths = []
         self.current_page = 0
         self.images_per_page = 9
