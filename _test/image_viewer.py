@@ -10,18 +10,20 @@ from PyQt6.QtCore import Qt
 
 class ImageGrid(QMainWindow):
     """
-    An image viewer application that displays images in a 3x3 grid.
+    An image viewer application that displays images in a nXm grid.
     Features include opening multiple images and paginating through them.
     """
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("3x3 Image Grid Viewer")
+        self.setWindowTitle("Image Album Viewer")
         self.setGeometry(100, 100, 800, 600)
 
         self.image_paths = []
         self.current_page = 0
-        self.images_per_page = 9
+        self.images_per_row = 4
+        self.images_per_col = 3
+        self.images_per_page = self.images_per_row * self.images_per_col
 
         # --- UI Setup ---
         self.central_widget = QWidget()
@@ -41,20 +43,22 @@ class ImageGrid(QMainWindow):
             label = QLabel(f"Image {i+1}")
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             
-            # --- KEY CHANGE 1 ---
-            # We turn this OFF to take manual control of scaling.
+            # We turn this OFF to take manual control of scaling
+            # so we can keep aspect ratio and use smooth transform
             label.setScaledContents(False) 
             
             label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+
+            # black background and black text, so empty buttons don't show text
             label.setStyleSheet("""
                 QLabel {
                     border: 1px solid #CCC;
-                    background-color: #F0F0F0;
-                    color: #888;
+                    background-color: #000000;
+                    color: #000000;
                 }
             """)
             self.image_labels.append(label)
-            row, col = divmod(i, 3) # Get row and column for 3x3 grid
+            row, col = divmod(i, self.images_per_row) # Get row and column for n x m grid
             self.grid_layout.addWidget(label, row, col)
 
         # Navigation buttons layout
@@ -113,7 +117,6 @@ class ImageGrid(QMainWindow):
                 path = self.image_paths[image_index]
                 pixmap = QPixmap(path)
                 
-                # --- KEY CHANGE 2 ---
                 # Scale the pixmap manually, keeping the aspect ratio and using a smooth transform.
                 # This gives a much higher quality result than setScaledContents.
                 scaled_pixmap = pixmap.scaled(
