@@ -12,6 +12,7 @@ class VideoPlayer(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.filename = ""
         self.setWindowTitle("Auto-Resizing MP4 Player")
         self.setGeometry(100, 100, 800, 600)
 
@@ -129,6 +130,7 @@ class VideoPlayer(QMainWindow):
         file_url, _ = QFileDialog.getOpenFileUrl(self, "Open MP4", filter="Video Files (*.mp4 *.avi *.mkv)")
         if file_url.isValid():
             print(f"Loading file: {file_url.toString()}")
+            self.filename = file_url.fileName()
             self.media_player.setSource(file_url)
             self.set_controls_enabled(True)
             self.play_video()
@@ -194,7 +196,7 @@ class VideoPlayer(QMainWindow):
         self.position_slider.setValue(position)
         self.position_slider.blockSignals(False)
         duration = self.media_player.duration()
-        self.time_label.setText(f"{self.format_time(position)} / {self.format_time(duration)}")
+        self.time_label.setText(f"{self.filename} - {self.format_time(position)} / {self.format_time(duration)}")
 
     def update_slider_range(self, duration):
         """Set the slider's maximum range when the media duration is known."""
