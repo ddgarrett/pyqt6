@@ -2,7 +2,8 @@ import sys
 import math
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QGridLayout,
-    QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog
+    QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog,
+    QSizePolicy
 )
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
@@ -39,7 +40,12 @@ class ImageGrid(QMainWindow):
         for i in range(self.images_per_page):
             label = QLabel(f"Image {i+1}")
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            label.setScaledContents(True) # Key for resizing
+            
+            # --- KEY CHANGE 1 ---
+            # We turn this OFF to take manual control of scaling.
+            label.setScaledContents(False) 
+            
+            label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
             label.setStyleSheet("""
                 QLabel {
                     border: 1px solid #CCC;
@@ -106,18 +112,30 @@ class ImageGrid(QMainWindow):
             if image_index < len(self.image_paths):
                 path = self.image_paths[image_index]
                 pixmap = QPixmap(path)
-                # Scale pixmap to fit the label while keeping aspect ratio
-                label.setPixmap(pixmap.scaled(
+                
+                # --- KEY CHANGE 2 ---
+                # Scale the pixmap manually, keeping the aspect ratio and using a smooth transform.
+                # This gives a much higher quality result than setScaledContents.
+                scaled_pixmap = pixmap.scaled(
                     label.size(),
                     Qt.AspectRatioMode.KeepAspectRatio,
                     Qt.TransformationMode.SmoothTransformation
-                ))
+                )
+                label.setPixmap(scaled_pixmap)
             else:
                 label.clear() # Clear label if no image
                 label.setText(f"Image {i+1}")
 
         self.update_button_states()
 
+    # --- KEY CHANGE 3 ---
+    # We add the resizeEvent to re-scale the images whenever the window size changes.
+    def resizeEvent(self, event):
+        """On resize, re-run the display logic to scale pixmaps to the new label sizes."""
+        super().resizeEvent(event)
+        self.display_page()
+
+    # The navigation methods below are unchanged
     def update_button_states(self):
         """Enables or disables navigation buttons based on current page."""
         total_images = len(self.image_paths)
@@ -155,18 +173,10 @@ class ImageGrid(QMainWindow):
         self.display_page()
         
     def last_page(self):
-        """Goes to the final page of images."""
         total_images = len(self.image_paths)
         if total_images > 0:
             self.current_page = math.ceil(total_images / self.images_per_page) - 1
             self.display_page()
-
-    def resizeEvent(self, event):
-        """Overrides the resize event to re-scale pixmaps."""
-        super().resizeEvent(event)
-        # Re-displaying the page on resize will cause pixmaps to be re-scaled
-        # based on the new label sizes.
-        self.display_page()
 
 
 if __name__ == "__main__":
@@ -174,4 +184,3 @@ if __name__ == "__main__":
     window = ImageGrid()
     window.show()
     sys.exit(app.exec())
-    
