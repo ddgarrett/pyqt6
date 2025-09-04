@@ -1,14 +1,13 @@
 import sys
 import os
 import cv2
-import numpy as np
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout,
     QSlider, QStyle
 )
 from PyQt6.QtGui import QPixmap, QImage, QMouseEvent
 from PyQt6.QtCore import Qt, pyqtSignal, QSize, QUrl
-from PyQt6.QtMultimedia import QMediaPlayer
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 
 # --- Constants for file type detection ---
@@ -28,6 +27,11 @@ class VideoPlayerWindow(QWidget):
 
         # --- Media Player and Video Widget ---
         self.media_player = QMediaPlayer(self)
+
+        # Create QAudioOutput and set it on the media player
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
+
         video_widget = QVideoWidget()
         self.media_player.setVideoOutput(video_widget)
         self.media_player.setSource(QUrl.fromLocalFile(video_path))
