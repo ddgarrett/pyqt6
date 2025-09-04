@@ -67,12 +67,15 @@ class MediaScannerApp(QMainWindow):
 
         # Get all currently selected items
         all_selected_indexes = self.tree_view.selectionModel().selectedIndexes()
+        file_list = []
         if all_selected_indexes:
             print("All currently selected items:")
             for index in all_selected_indexes:
                 if self.model.data(index, MyCustomDataRole):
-                    print(f"  - {self.model.data(index, MyCustomDataRole)}")
+                    file_list.append(self.model.data(index, MyCustomDataRole))
+                    # print(f"  - {self.model.data(index, MyCustomDataRole)}")
 
+        print(file_list)
 
     def open_folder_dialog(self):
         """
