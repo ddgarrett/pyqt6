@@ -5,6 +5,9 @@ from PyQt6.QtWidgets import (
     QPushButton, QTreeView, QFileDialog, QHeaderView
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtCore import Qt
+
+MyCustomDataRole = Qt.ItemDataRole.UserRole + 1
 
 class MediaScannerApp(QMainWindow):
     """
@@ -30,10 +33,15 @@ class MediaScannerApp(QMainWindow):
 
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
+        self.tree_view.setSelectionMode(QTreeView.SelectionMode.ExtendedSelection)
+
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(['Name', 'Size (KB)'])
         self.tree_view.setModel(self.model)
         
+        # Connect the selectionChanged signal
+        self.tree_view.selectionModel().selectionChanged.connect(self.on_selection_changed)
+
         # --- UI Polish: Adjust column widths ---
         # Make the first column (File Name) stretch to fill available space
         self.tree_view.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
@@ -51,6 +59,21 @@ class MediaScannerApp(QMainWindow):
         layout.addWidget(self.tree_view)
         layout.addWidget(self.open_button)
 
+    def on_selection_changed(self):
+        """
+        Slot to handle the selectionChanged event.
+        Print the full paths of all currently selected media files.
+        """
+
+        # Get all currently selected items
+        all_selected_indexes = self.tree_view.selectionModel().selectedIndexes()
+        if all_selected_indexes:
+            print("All currently selected items:")
+            for index in all_selected_indexes:
+                if self.model.data(index, MyCustomDataRole):
+                    print(f"  - {self.model.data(index, MyCustomDataRole)}")
+
+
     def open_folder_dialog(self):
         """
         Opens a dialog to select a folder and initiates the scan if a folder is chosen.
@@ -66,21 +89,26 @@ class MediaScannerApp(QMainWindow):
         """
         Recursively scans the given folder for media files and populates the QTreeView.
         """
-        # Clear previous results from the model, but keep the headers
+        # Clear previous results
         self.model.removeRows(0, self.model.rowCount())
-        
-        # Use os.walk for efficient recursive traversal
+        root_node = self.model.invisibleRootItem()
+
+        # Create a visible top-level item for the folder that was selected
+        top_folder_name = os.path.basename(folder_path)
+        top_level_item = QStandardItem(f"📁 {top_folder_name}")
+        top_level_item.setEditable(False)
+        root_node.appendRow(top_level_item)
+
+        # A dictionary to map folder paths to their QStandardItem in the tree.
+        # Initialize it with the top-level folder we just created.
+        folder_items = {folder_path: top_level_item}
+
+        # Use os.walk to traverse the directory tree top-down
         for root, dirs, files in os.walk(folder_path):
-            # Find the parent item for the current 'root' directory
-            if root == folder_path:
-                # If it's the top-level folder, the parent is the invisible root
-                parent_item = root_node
-            else:
-                # Otherwise, find the parent item from our dictionary
-                parent_item = folder_items.get(root)
-                if parent_item is None:
-                    # This case should ideally not happen in a top-down walk
-                    continue
+            # Find the parent item for the current 'root' directory from our dictionary.
+            parent_item = folder_items.get(root)
+            if parent_item is None:
+                continue
 
             # Add sub-folders to the tree
             # We sort them to ensure a consistent order
@@ -110,6 +138,9 @@ class MediaScannerApp(QMainWindow):
                         item_name = QStandardItem(f"📄 {filename}")
                         item_size = QStandardItem(f"{size_kb:.2f}")
                         
+                        # custom data role
+                        item_name.setData(full_path, MyCustomDataRole)
+
                         item_name.setEditable(False)
                         item_size.setEditable(False)
                         
@@ -119,8 +150,8 @@ class MediaScannerApp(QMainWindow):
                     except OSError as e:
                         print(f"Error accessing {full_path}: {e}")
         
-        # Automatically expand the top-level item
-        if self.model.hasChildren():
+        # Automatically expand the top-level item if it exists
+        if self.model.rowCount() > 0:
              self.tree_view.expand(self.model.index(0, 0))
 
 
@@ -130,4 +161,3 @@ if __name__ == '__main__':
     window = MediaScannerApp()
     window.show()
     sys.exit(app.exec())
-    
