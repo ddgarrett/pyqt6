@@ -13,6 +13,9 @@ class MediaScannerApp(QMainWindow):
     """
     A PyQt6 application to scan a folder for media files (images and videos)
     and display them in a hierarchical QTreeView that mirrors the folder structure.
+
+    Selecting one or more media files will print a list of selected files 
+    with full path names.
     """
     def __init__(self):
         super().__init__()
