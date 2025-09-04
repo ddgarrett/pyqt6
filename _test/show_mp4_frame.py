@@ -4,6 +4,13 @@ from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QVBoxLayout, QWid
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtCore import Qt
 
+'''
+    Requires Samsung T7 to be mounted
+    
+    NOTE: for pip install of cv2 had to code:
+     % .venv/bin/python -m pip install opencv-python
+'''
+
 class VideoFrameViewer(QMainWindow):
     def __init__(self, video_path):
         super().__init__()
