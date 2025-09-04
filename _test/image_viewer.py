@@ -11,7 +11,7 @@ from PyQt6.QtCore import Qt
 class ImageGrid(QMainWindow):
     """
     An image viewer application that displays images in a nXm grid.
-    Features include opening multiple images and paginating through them.
+    Features include opening multiple images and paging through them.
     """
     def __init__(self):
         super().__init__()

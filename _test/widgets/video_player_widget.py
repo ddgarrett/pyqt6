@@ -1,5 +1,7 @@
 """
     Widget for playing video files using QMediaPlayer.
+
+    To use, create an instance passing the full path name of the video file.
 """
 
 import os
