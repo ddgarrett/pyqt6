@@ -263,65 +263,6 @@ class MediaViewer(QMainWindow):
             self.player_windows.append(player_window)
             player_window.show()
 
-# --- Helper functions to create dummy files for demonstration ---
-def create_dummy_files(temp_dir="temp_media"):
-    """Creates a temporary directory with a dummy image and video."""
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-    print(f"Creating dummy media files in '{os.path.abspath(temp_dir)}'...")
-
-    file_list = []
-
-    # 1. Create a dummy image file
-    try:
-        image_path = os.path.join(temp_dir, "dummy_image.png")
-        image = np.zeros((480, 640, 3), dtype=np.uint8)
-        # Add a blue rectangle
-        cv2.rectangle(image, (100, 100), (540, 380), (255, 100, 50), -1)
-        cv2.putText(image, "Dummy Image", (160, 250), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2)
-        cv2.imwrite(image_path, image)
-        file_list.append(image_path)
-        print(f"  - Created: {image_path}")
-    except Exception as e:
-        print(f"Could not create dummy image. Error: {e}")
-
-
-    # 2. Create a dummy video file
-    try:
-        video_path = os.path.join(temp_dir, "dummy_video.mp4")
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(video_path, fourcc, 30.0, (640, 480))
-        for i in range(90): # Create a 3-second video
-            frame = np.full((480, 640, 3), (i * 2, 200 - i, 50 + i), dtype=np.uint8)
-            text = f"Dummy Video Frame: {i+1}"
-            cv2.putText(frame, text, (100, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            out.write(frame)
-        out.release()
-        file_list.append(video_path)
-        print(f"  - Created: {video_path}")
-    except Exception as e:
-        print(f"Could not create dummy video. Error: {e}. Is 'opencv-python' installed?")
-
-    # 3. Create another dummy image
-    try:
-        image_path_2 = os.path.join(temp_dir, "dummy_image_2.jpg")
-        image2 = np.zeros((720, 1280, 3), dtype=np.uint8)
-        # Add a green circle
-        cv2.circle(image2, (640, 360), 300, (50, 200, 50), -1)
-        cv2.putText(image2, "Another Image", (400, 380), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 3)
-        cv2.imwrite(image_path_2, image2)
-        file_list.append(image_path_2)
-        print(f"  - Created: {image_path_2}")
-    except Exception as e:
-        print(f"Could not create second dummy image. Error: {e}")
-
-    if not file_list:
-        print("\nERROR: Failed to create any dummy media files.")
-        print("Please ensure you have permissions to write to the directory and that opencv-python is installed correctly.")
-        return None
-
-    return file_list
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -329,20 +270,10 @@ if __name__ == "__main__":
     # --- Option 1: Use your own files ---
     # Comment out the dummy file creation and uncomment this section.
     # Replace the file paths with paths to your own media.
-    my_media = ['/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_172414212.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_172418744.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_213533766.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214433246.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214524604.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214642306.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214646433.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214650850.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214719284.PANO.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_214850022.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_215515534.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_215518578.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_220135158.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222228575.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222233295.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222236175.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222356439.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222506245.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222513229.NIGHT.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222531590.PANO.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222638000.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222644459.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_222649117.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_234429962.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_234455753.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_234459020.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250803_234506240.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_003349773.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_013031680.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_021527737.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_021531759.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_021547263.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08-03/PXL_20250804_021559371.jpg', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_174959675.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_180629537.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_181815575.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_202643083.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_202727024.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_203346845.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214421175.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214428748.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214440453.mp4', '/Volumes/T7/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_234716743.mp4']
+    my_media = ['/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_184038458.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_184136694.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_185442125.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_185838674.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_185918970.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_190229165.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_190258886.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_190410136.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_190853606.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_193006814.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_193014505.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_193658737.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_193701897.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_193939572.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194135525.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194140486.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194225249.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194227225.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194639966.NIGHT.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194807309.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_194813477.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_195148231.NIGHT.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_195244222.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_195408011.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_195523770.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_195646939.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202245883.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202403791.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202407142.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202411022.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202416137.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202420554.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202450035.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202453078.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202628967.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202641578.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202719916.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202818426.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202819094.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202819997.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_202822233.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203037249.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203225879.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203229115.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203231493.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203234304.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203358504.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203415207.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203622810.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_203632120.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_204013590.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210017533.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210046894.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210214781.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210217519.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210714705.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_210720216.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_212419177.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_215610639.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_215901464.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08-05/PXL_20250805_222315737.PORTRAIT.jpg', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_174959675.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_180629537.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250804_181815575.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_202643083.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_202727024.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_203346845.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214421175.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214428748.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_214440453.mp4', '/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_234716743.mp4']
+
     viewer = MediaViewer(my_media)
     viewer.show()
 
-    # --- Option 2: Use auto-generated dummy files ---
-    # This will run by default.
-    '''
-    dummy_media_list = create_dummy_files()
-    if dummy_media_list:
-        viewer = MediaViewer(dummy_media_list)
-        viewer.show()
-    else:
-        # If file creation fails, exit gracefully.
-        sys.exit(1)
-    '''
     sys.exit(app.exec())
     
