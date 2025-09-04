@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 )
 
 from PyQt6.QtCore import Qt, QUrl
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 
 
@@ -62,6 +62,9 @@ class VideoPlayerWindow(QWidget):
         self.media_player.positionChanged.connect(self.update_slider_position)
         self.seek_slider.sliderMoved.connect(self.set_player_position)
 
+        # show metadata
+        self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
+ 
         # Start playing immediately
         self.media_player.play()
 
@@ -95,3 +98,29 @@ class VideoPlayerWindow(QWidget):
         """Stops the media player when the window is closed."""
         self.media_player.stop()
         super().closeEvent(event)
+
+    def on_media_status_changed(self, status):
+        if status == QMediaPlayer.MediaStatus.LoadedMedia:
+            self.print_media_metadata(self.media_player.metaData())
+
+    def print_media_metadata(self, metadata):
+
+        '''
+        if metadata.isEmpty():
+            print("No metadata available for this media file.")
+            return
+        '''
+
+        print("--- QMediaMetaData ---")
+        
+        # Iterate through all available metadata keys
+        for key in QMediaMetaData.Key:
+            value = metadata.value(key)
+            
+            # Check if the value is valid before printing
+            if value:
+                # The value is a QVariant, which is automatically converted
+                # to a Python type, so you can print it directly
+                print(f"{key.name}: {value}")
+
+        print("----------------------")
