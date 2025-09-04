@@ -9,14 +9,14 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 class MediaScannerApp(QMainWindow):
     """
     A PyQt6 application to scan a folder for media files (images and videos)
-    and display their names and sizes in a QTreeView.
+    and display them in a hierarchical QTreeView that mirrors the folder structure.
     """
     def __init__(self):
         super().__init__()
 
         # --- Window Configuration ---
-        self.setWindowTitle("Media File Scanner")
-        self.setGeometry(100, 100, 700, 500) # x, y, width, height
+        self.setWindowTitle("Hierarchical Media File Scanner")
+        self.setGeometry(100, 100, 800, 600) # x, y, width, height
 
         # --- Define Media Extensions ---
         self.IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
@@ -31,7 +31,7 @@ class MediaScannerApp(QMainWindow):
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels(['File Name', 'Size (KB)'])
+        self.model.setHorizontalHeaderLabels(['Name', 'Size (KB)'])
         self.tree_view.setModel(self.model)
         
         # --- UI Polish: Adjust column widths ---
@@ -39,6 +39,9 @@ class MediaScannerApp(QMainWindow):
         self.tree_view.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         # Resize the second column (Size) to fit its contents
         self.tree_view.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        
+        # Set uniform row heights for a cleaner look
+        self.tree_view.setUniformRowHeights(True)
 
         # --- "Open Folder" Button ---
         self.open_button = QPushButton("Open Folder")
@@ -56,6 +59,7 @@ class MediaScannerApp(QMainWindow):
         
         # Proceed only if the user selected a folder (didn't cancel)
         if folder_path:
+            self.setWindowTitle(f"Hierarchical Media Scanner - {folder_path}")
             self.scan_folder(folder_path)
 
     def scan_folder(self, folder_path):
@@ -67,8 +71,33 @@ class MediaScannerApp(QMainWindow):
         
         # Use os.walk for efficient recursive traversal
         for root, dirs, files in os.walk(folder_path):
-            for filename in files:
-                # Check if the file has a recognized media extension (case-insensitive)
+            # Find the parent item for the current 'root' directory
+            if root == folder_path:
+                # If it's the top-level folder, the parent is the invisible root
+                parent_item = root_node
+            else:
+                # Otherwise, find the parent item from our dictionary
+                parent_item = folder_items.get(root)
+                if parent_item is None:
+                    # This case should ideally not happen in a top-down walk
+                    continue
+
+            # Add sub-folders to the tree
+            # We sort them to ensure a consistent order
+            for dir_name in sorted(dirs):
+                full_dir_path = os.path.join(root, dir_name)
+                # Create a QStandardItem for the folder
+                folder_item = QStandardItem(f"📁 {dir_name}")
+                folder_item.setEditable(False)
+                
+                # Add the folder item as a child of its parent
+                parent_item.appendRow(folder_item)
+                
+                # Store this new folder item in our dictionary for its children
+                folder_items[full_dir_path] = folder_item
+
+            # Add media files to the tree
+            for filename in sorted(files):
                 if filename.lower().endswith(self.MEDIA_EXTENSIONS):
                     full_path = os.path.join(root, filename)
                     
@@ -77,20 +106,22 @@ class MediaScannerApp(QMainWindow):
                         size_bytes = os.path.getsize(full_path)
                         size_kb = size_bytes / 1024
                         
-                        # Create QStandardItem for the file name and size
-                        item_name = QStandardItem(filename)
-                        item_size = QStandardItem(f"{size_kb:.2f}") # Format to 2 decimal places
+                        # Create items for the name and size columns
+                        item_name = QStandardItem(f"📄 {filename}")
+                        item_size = QStandardItem(f"{size_kb:.2f}")
                         
-                        # Make items non-editable by the user
                         item_name.setEditable(False)
                         item_size.setEditable(False)
                         
-                        # Add the new row to the model
-                        self.model.appendRow([item_name, item_size])
+                        # Add the file as a new row under its parent folder
+                        parent_item.appendRow([item_name, item_size])
 
                     except OSError as e:
-                        # Handle cases where file size can't be read (e.g., permissions)
                         print(f"Error accessing {full_path}: {e}")
+        
+        # Automatically expand the top-level item
+        if self.model.hasChildren():
+             self.tree_view.expand(self.model.index(0, 0))
 
 
 # --- Main execution block ---
