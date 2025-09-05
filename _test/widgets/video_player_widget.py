@@ -124,3 +124,13 @@ class VideoPlayerWindow(QWidget):
                 print(f"{key.name}: {value}")
 
         print("----------------------")
+
+
+if __name__ == "__main__":
+    from PyQt6.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    window = VideoPlayerWindow('/Users/douglasgarrett/Documents/pictures/2025_pictures/2025-08_FL_visitors/2025-08_FL_visitors_videos/PXL_20250805_234716743.mp4')
+    window.show()
+    sys.exit(app.exec())
