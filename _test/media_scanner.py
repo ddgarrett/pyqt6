@@ -50,6 +50,10 @@ class MediaScannerApp(QMainWindow):
         self.tree_view.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         # Resize the second column (Size) to fit its contents
         self.tree_view.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+
+        # Enable interactive resizing for all columns
+        header = self.tree_view.header()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         
         # Set uniform row heights for a cleaner look
         self.tree_view.setUniformRowHeights(True)
