@@ -8,7 +8,12 @@ from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtCore import Qt, QUrl
 
 class VideoPlayer(QMainWindow):
-    """An auto-resizing MP4 video player with sound controls using PyQt6."""
+    """ An auto-resizing MP4 video player with sound controls using PyQt6.
+    
+        Contains an open file button to select video to play.
+        Features play, pause, stop, rewind, fast-forward, mute, and volume controls.
+
+    """
 
     def __init__(self):
         super().__init__()
