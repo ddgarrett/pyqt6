@@ -1,8 +1,8 @@
 import sys
 import os
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, 
-    QPushButton, QTreeView, QFileDialog, QHeaderView
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QTreeView, QFileDialog, QHeaderView, QSizePolicy
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import Qt
@@ -46,25 +46,37 @@ class MediaScannerApp(QMainWindow):
         self.tree_view.selectionModel().selectionChanged.connect(self.on_selection_changed)
 
         # --- UI Polish: Adjust column widths ---
+        # Enable interactive resizing for all columns
+        header = self.tree_view.header()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         # Make the first column (File Name) stretch to fill available space
         self.tree_view.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         # Resize the second column (Size) to fit its contents
         self.tree_view.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-
-        # Enable interactive resizing for all columns
-        header = self.tree_view.header()
-        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         
         # Set uniform row heights for a cleaner look
         self.tree_view.setUniformRowHeights(True)
 
-        # --- "Open Folder" Button ---
-        self.open_button = QPushButton("Open Folder")
-        self.open_button.clicked.connect(self.open_folder_dialog)
+        # --- Button to open folder dialog ---
+        self.button_panel = QWidget() # Container for buttons
+        self.button_panel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        button_layout = QHBoxLayout(self.button_panel)
+
+        # --- Buttons ---
+        self.new_button = QPushButton("New")   
+        self.open_button = QPushButton("Open")  
+        self.save_button = QPushButton("Save")
+        self.new_button.clicked.connect(self.open_folder_dialog)
+
+        # Add buttons to the button layout
+        button_layout.addWidget(self.new_button)
+        button_layout.addWidget(self.open_button)
+        button_layout.addWidget(self.save_button)
+
 
         # --- Add widgets to the layout ---
         layout.addWidget(self.tree_view)
-        layout.addWidget(self.open_button)
+        layout.addWidget(self.button_panel)
 
     def on_selection_changed(self):
         """
