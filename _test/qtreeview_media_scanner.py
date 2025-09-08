@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt
 
 MyCustomDataRole = Qt.ItemDataRole.UserRole + 1
 
-class MediaScannerApp(QMainWindow):
+class MediaScannerApp(QWidget):
     """
     A PyQt6 application to scan a folder for media files (images and videos)
     and display them in a hierarchical QTreeView that mirrors the folder structure.
@@ -29,10 +29,19 @@ class MediaScannerApp(QMainWindow):
         self.VIDEO_EXTENSIONS = ('.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv')
         self.MEDIA_EXTENSIONS = self.IMAGE_EXTENSIONS + self.VIDEO_EXTENSIONS
 
+        # Create the main layout
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        # Create the "central" content widget
+        self.content_widget = QWidget()
+        layout = QVBoxLayout(self.content_widget) # Layout for the content widget
+        self.main_layout.addWidget(self.content_widget)
+     
         # --- Central Widget and Layout ---
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        # central_widget = QWidget()
+        # self.setCentralWidget(central_widget)
+        # layout = QVBoxLayout(central_widget)
 
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
