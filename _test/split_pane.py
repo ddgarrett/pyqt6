@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QLabel,
 )
+from widgets.qtreeview_media_scanner import MediaScannerWidget
 
 '''
     Generate a pyqt6 program with a two panes and a vertical split.
@@ -44,13 +45,13 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Two-Pane Window with Fixed Left Pane")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 900, 600)
 
         # Create the splitter
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Create the left and right panes
-        self.left_pane = LeftPane()
+        self.left_pane = MediaScannerWidget()
         self.right_pane = RightPane()
 
         # Add the panes to the splitter
