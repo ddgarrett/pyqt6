@@ -172,8 +172,8 @@ class MediaScannerWidget(QWidget):
                         print(f"Error accessing {full_path}: {e}")
         
         # Automatically expand the top-level item if it exists
-        if self.model.rowCount() > 0:
-             self.tree_view.expand(self.model.index(0, 0))
+        # if self.model.rowCount() > 0:
+        #      self.tree_view.expand(self.model.index(0, 0))
 
 
 # --- Main execution block ---
