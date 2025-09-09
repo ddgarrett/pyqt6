@@ -31,8 +31,8 @@ class MediaScannerWidget(QWidget):
 
         # Create the "central" content widget
         self.content_widget = QWidget()
-        layout = QVBoxLayout(self.content_widget) # Layout for the content widget
-        self.main_layout.addWidget(self.content_widget)
+        # layout = QVBoxLayout(self.content_widget) # Layout for the content widget
+        # self.main_layout.addWidget(self.content_widget)
 
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
@@ -74,8 +74,8 @@ class MediaScannerWidget(QWidget):
 
 
         # --- Add widgets to the layout ---
-        layout.addWidget(self.tree_view)
-        layout.addWidget(self.button_panel)
+        self.main_layout.addWidget(self.tree_view)
+        self.main_layout.addWidget(self.button_panel)
 
     def on_selection_changed(self):
         """
