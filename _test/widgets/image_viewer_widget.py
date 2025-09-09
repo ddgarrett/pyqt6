@@ -16,9 +16,6 @@ class ImageGrid(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Image Album Viewer")
-        self.setGeometry(100, 100, 800, 600)
-
         self.image_paths = []
         self.current_page = 0
         self.images_per_row = 4
@@ -185,5 +182,9 @@ class ImageGrid(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = ImageGrid()
+
+    window.setWindowTitle("Image Album Viewer")
+    window.setGeometry(100, 100, 800, 600)
+
     window.show()
     sys.exit(app.exec())
