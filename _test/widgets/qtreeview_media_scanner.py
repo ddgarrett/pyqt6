@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt
 
 MyCustomDataRole = Qt.ItemDataRole.UserRole + 1
 
-class MediaScannerApp(QWidget):
+class MediaScannerWidget(QWidget):
     """
     A PyQt6 application to scan a folder for media files (images and videos)
     and display them in a hierarchical QTreeView that mirrors the folder structure.
@@ -19,10 +19,6 @@ class MediaScannerApp(QWidget):
     """
     def __init__(self):
         super().__init__()
-
-        # --- Window Configuration ---
-        self.setWindowTitle("Hierarchical Media File Scanner")
-        self.setGeometry(100, 100, 800, 600) # x, y, width, height
 
         # --- Define Media Extensions ---
         self.IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
@@ -37,11 +33,6 @@ class MediaScannerApp(QWidget):
         self.content_widget = QWidget()
         layout = QVBoxLayout(self.content_widget) # Layout for the content widget
         self.main_layout.addWidget(self.content_widget)
-     
-        # --- Central Widget and Layout ---
-        # central_widget = QWidget()
-        # self.setCentralWidget(central_widget)
-        # layout = QVBoxLayout(central_widget)
 
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
@@ -58,11 +49,10 @@ class MediaScannerApp(QWidget):
         # Enable interactive resizing for all columns
         header = self.tree_view.header()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-        # Make the first column (File Name) stretch to fill available space
-        self.tree_view.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        # Resize the second column (Size) to fit its contents
-        self.tree_view.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        
+
+        # Set the width of the Name column (index 0)
+        self.tree_view.setColumnWidth(0, 150)
+
         # Set uniform row heights for a cleaner look
         self.tree_view.setUniformRowHeights(True)
 
@@ -125,14 +115,14 @@ class MediaScannerApp(QWidget):
         root_node = self.model.invisibleRootItem()
 
         # Create a visible top-level item for the folder that was selected
-        top_folder_name = os.path.basename(folder_path)
-        top_level_item = QStandardItem(f"📁 {top_folder_name}")
-        top_level_item.setEditable(False)
-        root_node.appendRow(top_level_item)
+        # top_folder_name = os.path.basename(folder_path)
+        # top_level_item = QStandardItem(f"📁 {top_folder_name}")
+        # top_level_item.setEditable(False)
+        # root_node.appendRow(top_level_item)
 
         # A dictionary to map folder paths to their QStandardItem in the tree.
         # Initialize it with the top-level folder we just created.
-        folder_items = {folder_path: top_level_item}
+        folder_items = {folder_path: root_node}
 
         # Use os.walk to traverse the directory tree top-down
         for root, dirs, files in os.walk(folder_path):
@@ -189,6 +179,10 @@ class MediaScannerApp(QWidget):
 # --- Main execution block ---
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MediaScannerApp()
+
+    window = MediaScannerWidget()
+    window.setWindowTitle("Hierarchical Media File Scanner")
+    window.setGeometry(100, 100, 800, 600) # x, y, width, height
+
     window.show()
     sys.exit(app.exec())
