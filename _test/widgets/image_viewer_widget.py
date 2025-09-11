@@ -13,13 +13,13 @@ class ImageGrid(QWidget):
     An image viewer application that displays images in a nXm grid.
     Features include opening multiple images and paging through them.
     """
-    def __init__(self):
+    def __init__(self, rc=(3,3), bkg_color="#000000"):
         super().__init__()
 
         self.image_paths = []
         self.current_page = 0
-        self.images_per_row = 4
-        self.images_per_col = 3
+        self.images_per_row = rc[0]
+        self.images_per_col = rc[1]
         self.images_per_page = self.images_per_row * self.images_per_col
 
         # --- UI Setup ---
@@ -52,10 +52,11 @@ class ImageGrid(QWidget):
             label.setStyleSheet("""
                 QLabel {
                     border: 1px solid #CCC;
-                    background-color: #000000;
+                    background-color: %s;
                     color: #000000;
                 }
-            """)
+            """ % bkg_color)
+
             self.image_labels.append(label)
             row, col = divmod(i, self.images_per_row) # Get row and column for n x m grid
             self.grid_layout.addWidget(label, row, col)
@@ -124,6 +125,7 @@ class ImageGrid(QWidget):
                     Qt.TransformationMode.SmoothTransformation
                 )
                 label.setPixmap(scaled_pixmap)
+                label.setToolTip(path)
             else:
                 label.clear() # Clear label if no image
                 label.setText(f"Image {i+1}")
@@ -183,7 +185,9 @@ class ImageGrid(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = ImageGrid()
+
+    # for viewing icons
+    window = ImageGrid(rc=(12,12), bkg_color="#FFFFFF")
 
     window.setWindowTitle("Image Album Viewer")
     window.setGeometry(100, 100, 800, 600)
