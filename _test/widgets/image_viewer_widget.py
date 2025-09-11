@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
-class ImageGrid(QMainWindow):
+class ImageGrid(QWidget):
     """
     An image viewer application that displays images in a nXm grid.
     Features include opening multiple images and paging through them.
@@ -23,11 +23,13 @@ class ImageGrid(QMainWindow):
         self.images_per_page = self.images_per_row * self.images_per_col
 
         # --- UI Setup ---
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
+        # self.central_widget = QWidget()
+        # self.setCentralWidget(self.central_widget)
 
         # Main layout
-        self.main_layout = QVBoxLayout(self.central_widget)
+        # self.main_layout = QVBoxLayout(self.central_widget)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         # Grid for images
         self.grid_layout = QGridLayout()
