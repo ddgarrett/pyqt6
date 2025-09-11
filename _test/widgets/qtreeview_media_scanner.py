@@ -30,7 +30,7 @@ class MediaScannerWidget(QWidget):
         self.setLayout(self.main_layout)
 
         # Create the "central" content widget
-        self.content_widget = QWidget()
+        # self.content_widget = QWidget()
 
         # --- QTreeView for displaying results ---
         self.tree_view = QTreeView()
