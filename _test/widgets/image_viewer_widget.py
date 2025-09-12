@@ -1,4 +1,5 @@
 import sys
+import os
 import math
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QGridLayout,
@@ -127,7 +128,7 @@ class ImageGrid(QWidget):
                     Qt.TransformationMode.SmoothTransformation
                 )
                 label.setPixmap(scaled_pixmap)
-                label.setToolTip(path)
+                label.setToolTip(os.path.basename(path))
             else:
                 label.clear() # Clear label if no image
                 label.setText(f"Image {i+1}")
