@@ -67,6 +67,7 @@ class ImageGrid(QWidget):
         
         # Create and connect buttons
         self.btn_open = QPushButton("Open Images")
+        self.page_nbr = QLabel(" ")
         self.btn_home = QPushButton("<< Home")
         self.btn_prev = QPushButton("< Prev")
         self.btn_next = QPushButton("Next >")
@@ -80,6 +81,7 @@ class ImageGrid(QWidget):
 
         # Add buttons to navigation layout
         self.nav_layout.addWidget(self.btn_open)
+        self.nav_layout.addWidget(self.page_nbr)
         self.nav_layout.addStretch() # Add a spacer
         self.nav_layout.addWidget(self.btn_home)
         self.nav_layout.addWidget(self.btn_prev)
@@ -129,6 +131,7 @@ class ImageGrid(QWidget):
             else:
                 label.clear() # Clear label if no image
                 label.setText(f"Image {i+1}")
+                label.setToolTip("")
 
         self.update_button_states()
 
@@ -148,9 +151,13 @@ class ImageGrid(QWidget):
         # Calculate total pages (0-indexed)
         if not has_images:
             total_pages = 0
+            self.page_nbr.setText("")
         else:
             total_pages = math.ceil(total_images / self.images_per_page) - 1
+            self.page_nbr.setText(f"Page {self.current_page + 1} of {total_pages + 1}")
             
+        # Update Page Number
+
         # Enable/disable buttons
         self.btn_home.setEnabled(has_images and self.current_page > 0)
         self.btn_prev.setEnabled(has_images and self.current_page > 0)
